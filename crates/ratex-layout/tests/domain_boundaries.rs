@@ -55,6 +55,29 @@ fn explicit_array_tags_survive_row_gap_layout() {
 }
 
 #[test]
+fn multi_digit_auto_equation_numbers_draw_every_digit_upright() {
+    // Rows (1)..(10): digits only come from the tags, `0` only from `(10)`.
+    let formula = r"\begin{gather}a\\b\\c\\d\\e\\f\\g\\h\\i\\j\end{gather}";
+    let display = to_display_list(&layout(&parse(formula).unwrap(), &LayoutOptions::default()));
+    let digits: Vec<(char, &str)> = display
+        .items
+        .iter()
+        .filter_map(|item| match item {
+            DisplayItem::GlyphPath {
+                char_code, font, ..
+            } => char::from_u32(*char_code)
+                .filter(char::is_ascii_digit)
+                .map(|c| (c, font.as_str())),
+            _ => None,
+        })
+        .collect();
+    let count = |digit: char| digits.iter().filter(|(c, _)| *c == digit).count();
+    assert_eq!(count('1'), 2, "{digits:?}");
+    assert_eq!(count('0'), 1, "{digits:?}");
+    assert!(digits.iter().all(|(_, font)| *font == "Main-Regular"));
+}
+
+#[test]
 fn proof_labels_add_ink_without_changing_the_inference_count() {
     let plain = r"\begin{prooftree}\AxiomC{P}\UnaryInfC{Q}\end{prooftree}";
     let labeled =

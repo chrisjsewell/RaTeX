@@ -936,6 +936,32 @@ mod environments {
     }
 
     #[test]
+    fn auto_equation_number_has_one_node_per_digit() {
+        use crate::parse_node::ArrayTag;
+        use crate::parser::Parser;
+        // A single symbol node is laid out as one glyph, so a multi-digit
+        // number must be split into one node per digit to draw `(10)`.
+        for (counter, expected) in [(0, "(1)"), (9, "(10)"), (99, "(100)"), (122, "(123)")] {
+            let mut parser = Parser::new("\\begin{equation}Z\\end{equation}");
+            parser.equation_counter = counter;
+            let ast = parser.parse().unwrap();
+            let Some(ParseNode::Array {
+                tags: Some(tags), ..
+            }) = ast.first()
+            else {
+                panic!("Expected Array node with tags");
+            };
+            let ArrayTag::Explicit(nodes) = &tags[0] else {
+                panic!("Expected an auto-numbered tag");
+            };
+            let texts: Vec<&str> = nodes.iter().filter_map(|n| n.symbol_text()).collect();
+            let expected: Vec<String> = expected.chars().map(String::from).collect();
+            assert_eq!(texts, expected);
+            assert_eq!(nodes.len(), expected.len());
+        }
+    }
+
+    #[test]
     fn matrix_single_row() {
         let ast = parse("\\begin{matrix} a & b & c \\end{matrix}").unwrap();
         if let ParseNode::Array { body, .. } = &ast[0] {
