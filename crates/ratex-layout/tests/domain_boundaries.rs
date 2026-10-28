@@ -55,6 +55,22 @@ fn explicit_array_tags_survive_row_gap_layout() {
 }
 
 #[test]
+fn tag_labels_are_set_as_upright_text() {
+    let font_of = |formula: &str, character: char| {
+        let display = to_display_list(&layout(&parse(formula).unwrap(), &LayoutOptions::default()));
+        display.items.into_iter().find_map(|item| match item {
+            DisplayItem::GlyphPath {
+                char_code, font, ..
+            } if char_code == character as u32 => Some(font),
+            _ => None,
+        })
+    };
+    assert_eq!(font_of(r"\tag{A}x", 'A').as_deref(), Some("Main-Regular"));
+    assert_eq!(font_of(r"\tag*{A}x", 'A').as_deref(), Some("Main-Regular"));
+    assert_eq!(font_of(r"\tag{$x$}y", 'x').as_deref(), Some("Math-Italic"));
+}
+
+#[test]
 fn proof_labels_add_ink_without_changing_the_inference_count() {
     let plain = r"\begin{prooftree}\AxiomC{P}\UnaryInfC{Q}\end{prooftree}";
     let labeled =

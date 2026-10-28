@@ -25,6 +25,11 @@ section.
   depends on it. Disable default features to build without `\ce` / `\pu` and the `regex` /
   `fancy-regex` dependencies. See *Building without mhchem* in the README.
 
+### Fixed
+
+- `\tag{...}` sets its label in text mode, as KaTeX does (`\text{(...)}`): `\tag{A}` is upright,
+  math needs `$...$`, and `\tag` can no longer be nested in its own argument.
+
 ## [0.1.15] - 2026-10-16
 
 ### Compatibility
