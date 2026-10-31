@@ -345,26 +345,17 @@ pub fn parse_array(
                     processed.push(ArrayTag::Auto(false));
                 }
                 ArrayTag::Auto(true) => {
-                    // Auto-number this row: step counter, generate "(N)"
+                    // Auto-number this row: step counter, generate "(N)", one node
+                    // per character (a symbol node is laid out as a single glyph)
                     parser.equation_counter += 1;
-                    let num_str = parser.equation_counter.to_string();
-                    let tag_nodes = vec![
-                        ParseNode::MathOrd {
+                    let tag_nodes = format!("({})", parser.equation_counter)
+                        .chars()
+                        .map(|c| ParseNode::MathOrd {
                             mode: Mode::Math,
-                            text: "(".to_string(),
+                            text: c.to_string(),
                             loc: None,
-                        },
-                        ParseNode::MathOrd {
-                            mode: Mode::Math,
-                            text: num_str,
-                            loc: None,
-                        },
-                        ParseNode::MathOrd {
-                            mode: Mode::Math,
-                            text: ")".to_string(),
-                            loc: None,
-                        },
-                    ];
+                        })
+                        .collect();
                     processed.push(ArrayTag::Explicit(tag_nodes));
                     any_visible = true;
                 }

@@ -25,6 +25,10 @@ section.
   depends on it. Disable default features to build without `\ce` / `\pu` and the `regex` /
   `fancy-regex` dependencies. See *Building without mhchem* in the README.
 
+### Fixed
+
+- Automatic equation numbers of two or more digits draw every digit, `(10)` instead of `(1)`.
+
 ## [0.1.15] - 2026-10-16
 
 ### Compatibility
